@@ -21,7 +21,7 @@ export default function RegistrationScreen() {
           <Image source={BgImage} style={styles.image} resizeMode="cover" />
         </View>
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={Platform.OS === "ios" ? "padding" : ""}
           style={styles.container}
           keyboardVerticalOffset={-240}
         >
