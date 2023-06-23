@@ -1,3 +1,4 @@
+import { useState } from "react";
 import BgImage from "../images/photoBg.jpg";
 
 import {
@@ -10,9 +11,35 @@ import {
   StyleSheet,
   Keyboard,
   Text,
+  Alert,
 } from "react-native";
 
 export default function LoginScreen() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const onLogin = () => {
+    Alert.alert(
+      "Credentials:",
+      `Email: ${email} 
+       Password: ${password}`
+    );
+    // console.log("Credentials:", `${email} + ${password}`);
+    if (email === "" || password === "") {
+      Alert.alert("All fields must be filled");
+      // console.log("All fields must be filled");
+      return;
+    }
+
+    setEmail("");
+    setPassword("");
+  };
+
+  const onShow = () => {
+    Alert.alert("Credentials:", `Password: ${password}`);
+    // console.log("Show password:", `${password}`);
+  };
+
   return (
     <>
       <View style={styles.containerImage}>
@@ -32,23 +59,27 @@ export default function LoginScreen() {
               placeholderTextColor={"#BDBDBD"}
               style={styles.input}
               autoCompleteType="off"
+              value={email}
+              onChangeText={setEmail}
             />
             <TextInput
               placeholder="Пароль"
               placeholderTextColor={"#BDBDBD"}
               style={styles.input}
               autoCompleteType="off"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
             />
-            <TouchableOpacity style={styles.showTxt}>
+            <TouchableOpacity style={styles.showTxt} onPress={onShow}>
               <Text style={styles.showText}>Показати</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.loginBtn}>
+            <TouchableOpacity style={styles.loginBtn} onPress={onLogin}>
               <Text style={styles.loginBtnText}>Увійти</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={styles.linkText}>
-                Немає акаунту? Зареєструватися
-              </Text>
+            <TouchableOpacity style={styles.accountBtn}>
+              <Text style={styles.linkText}>Немає акаунту?</Text>
+              <Text style={styles.linkRegister}>Зареєструватися</Text>
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
@@ -141,10 +172,20 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     textAlign: "center",
   },
+  accountBtn: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
   linkText: {
     fontSize: 16,
     color: "#1B4371",
     textAlign: "center",
-    // marginTop: 16,
+    marginRight: 8,
+  },
+  linkRegister: {
+    fontSize: 16,
+    textDecorationLine: "underline",
+    color: "#1B4371",
+    textAlign: "center",
   },
 });

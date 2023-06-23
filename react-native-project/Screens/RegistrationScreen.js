@@ -11,9 +11,47 @@ import {
   Keyboard,
   Text,
   ScrollView,
+  Alert,
 } from "react-native";
+import { useState } from "react";
 
 export default function RegistrationScreen() {
+  const [login, setLogin] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const onRegister = () => {
+    Alert.alert(
+      "Credentials:",
+      `Login: ${login} 
+       Email: ${email} 
+       Password: ${password}`
+    );
+    // console.log("Credentials:", `${login} + ${email} + ${password}`);
+    if (login === "" || email === "" || password === "") {
+      Alert.alert("All fields must be filled");
+      // console.log("All fields must be filled");
+      return;
+    }
+    setLogin("");
+    setEmail("");
+    setPassword("");
+  };
+
+  const onShow = () => {
+    Alert.alert("Credentials:", `Password: ${password}`);
+    // console.log("Show password:", `${password}`);
+  };
+
+  const onRegisteredAccount = () => {
+    Alert.alert(
+      "Show registered account:",
+      `Login: ${login} 
+       Email: ${email} 
+       Password: ${password}`
+    );
+    // console.log("Show registered account");
+  };
   return (
     <>
       <ScrollView style={{ width: "100%" }}>
@@ -35,26 +73,33 @@ export default function RegistrationScreen() {
                 placeholderTextColor={"#BDBDBD"}
                 style={styles.input}
                 autoCompleteType="off"
+                value={login}
+                onChangeText={setLogin}
               />
               <TextInput
                 placeholder="Адреса електронної пошти"
                 placeholderTextColor={"#BDBDBD"}
                 style={styles.input}
                 autoCompleteType="off"
+                value={email}
+                onChangeText={setEmail}
               />
               <TextInput
                 placeholder="Пароль"
                 placeholderTextColor={"#BDBDBD"}
                 style={styles.input}
                 autoCompleteType="off"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
               />
-              <TouchableOpacity style={styles.showTxt}>
+              <TouchableOpacity style={styles.showTxt} onPress={onShow}>
                 <Text style={styles.showText}>Показати</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.registerBtn}>
+              <TouchableOpacity style={styles.registerBtn} onPress={onRegister}>
                 <Text style={styles.registerBtnText}>Зареєстуватися</Text>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={onRegisteredAccount}>
                 <Text style={styles.linkText}>Вже є акаунт? Увійти</Text>
               </TouchableOpacity>
             </View>
