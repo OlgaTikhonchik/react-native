@@ -13,14 +13,24 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 
 export default function RegistrationScreen() {
   const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState("");
+  const [isButtonActive, setButtonActive] = useState(false);
+  const navigation = useNavigation();
 
   const onRegister = () => {
+    // if (!profilePhoto) {
+    //   Alert.alert("Please add profile photo");
+    //   return;
+    // }
     Alert.alert(
       "Credentials:",
       `Login: ${login} 
@@ -36,12 +46,34 @@ export default function RegistrationScreen() {
     setLogin("");
     setEmail("");
     setPassword("");
+    navigation.navigate("Home");
   };
 
   const onShow = () => {
-    Alert.alert("Credentials:", `Password: ${password}`);
+    setShowPassword(!showPassword);
+    //Alert.alert("Credentials:", `Password: ${password}`);
     // console.log("Show password:", `${password}`);
   };
+
+  const showImagePicker = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync();
+    if (!result.canceled) {
+      setProfilePhoto(result.assets[0].uri);
+    }
+  };
+
+  useEffect(() => {
+    if (login && email && password) {
+      setButtonActive(true);
+      return;
+    }
+    setButtonActive(false);
+  }, [login, email, password]);
 
   const onRegisteredAccount = () => {
     Alert.alert(
@@ -65,8 +97,18 @@ export default function RegistrationScreen() {
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={styles.register}>
-              <Image style={styles.imageAvatar} />
-              <Image source={add} style={styles.imageAdd} />
+              {/* <Image style={styles.imageAvatar} /> */}
+              <View style={styles.imageAvatar}>
+                {profilePhoto && (
+                  <Image
+                    source={{ uri: profilePhoto }}
+                    // style={styles.imageAvatar}
+                  />
+                )}
+              </View>
+              <TouchableOpacity onPress={showImagePicker}>
+                <Image source={add} style={styles.imageAdd} />
+              </TouchableOpacity>
               <Text style={styles.text}>Реєстрація</Text>
               <TextInput
                 placeholder="Логін"
@@ -91,15 +133,37 @@ export default function RegistrationScreen() {
                 autoCompleteType="off"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
+                secureTextEntry={!showPassword}
+                // secureTextEntry
               />
               <TouchableOpacity style={styles.showTxt} onPress={onShow}>
-                <Text style={styles.showText}>Показати</Text>
+                <Text style={styles.showPasswordText}>
+                  {showPassword ? "Приховати" : "Показати"}
+                </Text>
+                {/* <Text style={styles.showPasswordText}>Показати</Text> */}
               </TouchableOpacity>
-              <TouchableOpacity style={styles.registerBtn} onPress={onRegister}>
-                <Text style={styles.registerBtnText}>Зареєстуватися</Text>
+              <TouchableOpacity
+                style={
+                  isButtonActive
+                    ? styles.registerBtn
+                    : styles.disabledRegisterBtn
+                }
+                disabled={isButtonActive ? false : true}
+                // style={styles.registerBtn}
+                onPress={onRegister}
+              >
+                <Text
+                  style={
+                    isButtonActive
+                      ? styles.registerBtnText
+                      : styles.registerBtnTextDisabled
+                  }
+                >
+                  Зареєстуватися
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onRegisteredAccount}>
+              {/* <TouchableOpacity onPress={onRegisteredAccount}> */}
+              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                 <Text style={styles.linkText}>Вже є акаунт? Увійти</Text>
               </TouchableOpacity>
             </View>
@@ -172,7 +236,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     fontSize: 16,
   },
-  showText: {
+  showPasswordText: {
     fontSize: 16,
     color: "#1B4371",
     position: "absolute",
@@ -192,6 +256,19 @@ const styles = StyleSheet.create({
   registerBtnText: {
     fontSize: 16,
     color: "#ffffff",
+    textAlign: "center",
+  },
+  disabledRegisterBtn: {
+    width: "92%",
+    height: 51,
+    backgroundColor: "#F6F6F6",
+    padding: 16,
+    borderRadius: 100,
+    margin: 16,
+  },
+  registerBtnTextDisabled: {
+    fontSize: 16,
+    color: "#BDBDBD",
     textAlign: "center",
   },
   linkText: {
