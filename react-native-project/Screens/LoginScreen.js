@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BgImage from "../images/photoBg.jpg";
 
 import {
@@ -13,10 +13,59 @@ import {
   Text,
   Alert,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 export default function LoginScreen() {
+  const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState({
+    email: false,
+    password: false,
+  });
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const [isButtonActive, setButtonActive] = useState(false);
+
+  const handleInputFocus = (textinput) => {
+    setIsFocused({
+      [textinput]: true,
+    });
+  };
+
+  useEffect(() => {
+    if (email && password) {
+      setButtonActive(true);
+      return;
+    }
+    setButtonActive(false);
+  }, [email, password]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setIsKeyboardActive(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setIsKeyboardActive(false);
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  const handleInputBlur = (textinput) => {
+    setIsFocused({
+      [textinput]: false,
+    });
+  };
 
   const onLogin = () => {
     Alert.alert(
@@ -30,13 +79,15 @@ export default function LoginScreen() {
       // console.log("All fields must be filled");
       return;
     }
-
+    Keyboard.dismiss();
     setEmail("");
     setPassword("");
+    navigation.navigate("Home");
   };
 
   const onShow = () => {
-    Alert.alert("Credentials:", `Password: ${password}`);
+    setShowPassword(!showPassword);
+    // Alert.alert("Credentials:", `Password: ${password}`);
     // console.log("Show password:", `${password}`);
   };
 
@@ -53,33 +104,77 @@ export default function LoginScreen() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.login}>
             <Text style={styles.text}>Увійти</Text>
-
             <TextInput
               placeholder="Адреса електронної пошти"
               placeholderTextColor={"#BDBDBD"}
-              style={styles.input}
+              // style={styles.input}
               autoCompleteType="off"
               value={email}
               onChangeText={setEmail}
+              onFocus={() => {
+                handleInputFocus("email");
+              }}
+              onBlur={() => {
+                handleInputBlur("email");
+              }}
+              style={
+                isFocused.email
+                  ? [styles.input, { borderColor: "#FF6C00" }]
+                  : styles.input
+              }
             />
             <TextInput
               placeholder="Пароль"
               placeholderTextColor={"#BDBDBD"}
-              style={styles.input}
+              // style={styles.input}
               autoCompleteType="off"
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
+              secureTextEntry={!showPassword}
+              onFocus={() => {
+                handleInputFocus("password");
+              }}
+              onBlur={() => {
+                handleInputBlur("password");
+              }}
+              style={
+                isFocused.password
+                  ? [styles.input, { borderColor: "#FF6C00" }]
+                  : styles.input
+              }
             />
             <TouchableOpacity style={styles.showTxt} onPress={onShow}>
-              <Text style={styles.showText}>Показати</Text>
+              <Text style={styles.showPasswordText}>
+                {showPassword ? "Приховати" : "Показати"}
+              </Text>
+              {/* <Text style={styles.showText}>Показати</Text> */}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.loginBtn} onPress={onLogin}>
-              <Text style={styles.loginBtnText}>Увійти</Text>
+            {/* <TouchableOpacity style={styles.loginBtn} onPress={onLogin}> */}
+            <TouchableOpacity
+              // style={isKeyboardActive ? { display: "none" } : styles.loginBtn}
+              style={isButtonActive ? styles.loginBtn : styles.disabledLoginBtn}
+              disabled={isButtonActive ? false : true}
+              onPress={onLogin}
+            >
+              <Text
+                // style={styles.loginBtnText}
+                style={
+                  isButtonActive
+                    ? styles.loginBtnText
+                    : styles.loginBtnTextDisabled
+                }
+              >
+                Увійти
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.accountBtn}>
               <Text style={styles.linkText}>Немає акаунту?</Text>
-              <Text style={styles.linkRegister}>Зареєструватися</Text>
+              <Text
+                style={styles.linkRegister}
+                onPress={() => navigation.navigate("Registration")}
+              >
+                Зареєструватися
+              </Text>
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
@@ -150,7 +245,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     fontSize: 16,
   },
-  showText: {
+  showPasswordText: {
     fontSize: 16,
     color: "#1B4371",
     position: "absolute",
@@ -172,6 +267,11 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     textAlign: "center",
   },
+  loginBtnTextDisabled: {
+    fontSize: 16,
+    color: "#BDBDBD",
+    textAlign: "center",
+  },
   accountBtn: {
     flexDirection: "row",
     justifyContent: "center",
@@ -187,5 +287,13 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     color: "#1B4371",
     textAlign: "center",
+  },
+  disabledLoginBtn: {
+    width: "92%",
+    height: 51,
+    backgroundColor: "#F6F6F6",
+    padding: 16,
+    borderRadius: 100,
+    margin: 16,
   },
 });
