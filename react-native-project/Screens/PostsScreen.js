@@ -1,11 +1,11 @@
-import logOut from "../images/logOut.png";
-import user from "../images/user.png";
+// import logOut from "../images/logOut.png";
+// import user from "../images/user.png";
 import userFoto from "../images/userFoto.jpg";
-import grid from "../images/grid.png";
-import union from "../images/union.png";
+// import grid from "../images/grid.png";
+// import union from "../images/union.png";
 import Post from "../components/Post";
-import { nanoid } from "nanoid";
-import { useSelector } from "react-redux";
+// import { nanoid } from "nanoid";
+// import { useSelector } from "react-redux";
 import {
   FlatList,
   Image,

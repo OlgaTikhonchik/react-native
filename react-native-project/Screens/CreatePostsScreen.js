@@ -1,30 +1,3 @@
-// import React from "react";
-// import {
-//   View,
-//   StyleSheet,
-//   KeyboardAvoidingView,
-//   Text,
-//   TouchableOpacity,
-//   ScrollView,
-//   ImageBackground,
-//   Image,
-// } from "react-native";
-
-// export default function CreatePostsScreen() {
-//   return (
-//     <View style={styles.container}>
-//       <Text>CreatePostsScreen Screen</Text>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-// });
 
 import { Camera } from "expo-camera";
 import { useEffect, useState } from "react";

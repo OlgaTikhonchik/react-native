@@ -1,22 +1,3 @@
-// import React from "react";
-// import { View, Text, StyleSheet } from "react-native";
-
-// export default function Home() {
-//   return (
-//     <View style={styles.container}>
-//       <Text>Home Screen</Text>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-// });
-
 import { StyleSheet, View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { AntDesign } from "@expo/vector-icons";
