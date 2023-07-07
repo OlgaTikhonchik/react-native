@@ -1,116 +1,145 @@
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
+import React from "react";
+import { useDispatch } from "react-redux";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { AntDesign } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
-import Header from "../components/Header";
-import PostsScreen from "./PostsScreen";
-import CreatePostScreen from "./CreatePostsScreen";
-import ProfileScreen from "./ProfileScreen";
+const MainTab = createBottomTabNavigator();
 
-const Tab = createBottomTabNavigator();
+import PostsScreen from "../Screens/PostsScreen";
+import ProfileScreen from "../Screens/ProfileScreen";
+import CreatePostsScreen from "../Screens/CreatePostsScreen";
 
-export default function Home() {
+import { AntDesign, Feather } from "@expo/vector-icons";
+import { authLogoutUser } from "../redux/auth/operations";
+
+const Home = ({ navigation, route }) => {
+  const dispatch = useDispatch();
+
+  const logout = () => {
+    dispatch(authLogoutUser());
+  };
+
   return (
-    <Tab.Navigator
+    <MainTab.Navigator
       initialRouteName="Posts"
-      backBehavior="none"
-      screenOptions={({ route }) => ({
+      screenOptions={{
         tabBarShowLabel: false,
-        headerShown: false,
-        tabBarStyle: {
-          paddingTop: 9,
-          paddingBottom: 34,
-          paddingHorizontal: 75,
-          height: 83,
+        tabBarStyle: [
+          {
+            display: "flex",
+          },
+          null,
+        ],
+
+        headerTitleAlign: "center",
+        headerTitleStyle: {
+          fontFamily: "Roboto-Medium",
+          fontSize: 17,
+          lineHeight: 22,
         },
-        tabBarIcon: ({ focused }) => {
-          if (route.name === "Posts") {
-            return (
-              <View
-                style={{
-                  ...styles.iconsNav,
-                  backgroundColor: focused ? "#FF6C00" : "#FFFFFF",
-                }}
-              >
-                <AntDesign
-                  name="appstore-o"
-                  size={24}
-                  color={focused ? "#FFFFFF" : "rgba(33, 33, 33, 0.8)"}
-                />
-              </View>
-            );
-          }
-          if (route.name === "CreatePosts") {
-            return (
-              <View
-                style={{
-                  ...styles.iconsNav,
-                  backgroundColor: focused ? "#FF6C00" : "#FFFFFF",
-                }}
-              >
-                <AntDesign
-                  name="plus"
-                  size={24}
-                  color={focused ? "#FFFFFF" : "rgba(33, 33, 33, 0.8)"}
-                />
-              </View>
-            );
-          }
-          if (route.name === "Profile") {
-            return (
-              <View
-                style={{
-                  ...styles.iconsNav,
-                  backgroundColor: focused ? "#FF6C00" : "#FFFFFF",
-                }}
-              >
-                <Feather
-                  name="user"
-                  size={24}
-                  color={focused ? "#FFFFFF" : "rgba(33, 33, 33, 0.8)"}
-                />
-              </View>
-            );
-          }
+        headerStyle: {
+          backgroundColor: "#ffffff",
+          borderBottomWidth: 0.5,
+          borderBottomColor: "#21212120",
         },
-      })}
+        tabBarOptions: {
+          tabBarHideOnKeyboard: true,
+        },
+      }}
+      // tabBarOptions={{ showLabel: false }}
     >
-      <Tab.Screen
+      <MainTab.Screen
         name="Posts"
         component={PostsScreen}
-        options={{
-          header: () => <Header title="Публікації" />,
-          headerShown: "true",
+        options={({ route }) => {
+          const activeRoute = getFocusedRouteNameFromRoute(route);
+          return {
+            tabBarIcon: ({ focused, size, color }) => (
+              <AntDesign name="appstore-o" size={size} color={color} />
+            ),
+            title: "Публікації",
+            headerTitleStyle: {
+              fontFamily: "Roboto-Medium",
+              color: "#212121",
+              fontSize: 17,
+              lineHeight: 22,
+            },
+            headerRight: () => (
+              <Feather
+                name="log-out"
+                color="#BDBDBD"
+                size={24}
+                style={{ marginRight: 10 }}
+                onPress={logout}
+              />
+            ),
+
+            headerShown:
+              activeRoute === "Map" || activeRoute === "Comments"
+                ? false
+                : true,
+          };
         }}
       />
 
-      <Tab.Screen
-        name="CreatePosts"
-        component={CreatePostScreen}
+      <MainTab.Screen
+        name="Create"
+        component={CreatePostsScreen}
         options={{
-          header: () => <Header title="Створити публікацію" />,
-          headerShown: "true",
-          tabBarStyle: {
-            display: "none",
+          tabBarStyle: { display: "none" },
+          tabBarIcon: ({ focused, size, color }) => (
+            <View
+              style={{
+                width: 70,
+                height: 40,
+                backgroundColor: "#FF6C00",
+                borderRadius: 20,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Feather name="plus" size={size} color={"#fff"} />
+            </View>
+          ),
+          title: "Створити публікацію",
+          headerStyle: {
+            borderBottomWidth: 0.5,
+            borderBottomColor: "#212121CC",
           },
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontFamily: "Roboto-Medium",
+            color: "#212121",
+            fontSize: 17,
+            lineHeight: 22,
+          },
+          headerLeft: () => (
+            <Feather
+              name="arrow-left"
+              color="#212121CC"
+              size={24}
+              style={{ marginLeft: 16 }}
+              onPress={() => {
+                navigation.navigate("Posts");
+              }}
+            />
+          ),
         }}
       />
-
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-    </Tab.Navigator>
+      <MainTab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarIcon: ({ focused, size, color }) => (
+            <Feather name="user" size={size} color={color} />
+          ),
+        }}
+      />
+    </MainTab.Navigator>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  iconsNav: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-
-    borderRadius: 20,
-    width: 70,
-    height: 40,
-    padding: 8,
-  },
-});
+export default Home;
