@@ -1,159 +1,264 @@
 import {
-  TouchableOpacity,
-  ImageBackground,
-  ScrollView,
   StyleSheet,
   Text,
-  Image,
   View,
+  ImageBackground,
+  TouchableOpacity,
+  Image,
   FlatList,
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import bgImage from "../images/photoBg.jpg";
-import ProfilePost from "../components/ProfilePosts";
-import rectangle from "../images/rectangle.jpg";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Feather, EvilIcons, AntDesign } from "@expo/vector-icons";
+import { authLogoutUser, updateUserAvatar } from "../redux/auth/operations";
+import { useDispatch, useSelector } from "react-redux";
 
-const defaultAvatar = "../images/rectangle.jpg";
+import * as ImagePicker from "expo-image-picker";
 
-export default function ProfileScreen() {
-  const navigation = useNavigation();
-  const [avatar, setAvatar] = useState(null);
-  const [allPostsUser, setAllPostsUser] = useState([]);
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../config";
 
-  // const renderItem = ({ item }) => (
-  //   <ProfilePost
-  //     key={item.id}
-  //     title={item.title}
-  //     comments={item.comments}
-  //     like={item.like}
-  //     country={item.country}
-  //   />
-  // );
+const ProfileScreen = ({ navigation }) => {
+  const [posts, setPosts] = useState([]);
+  const { userId, userName, avatar } = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+
+  const logout = () => {
+    dispatch(authLogoutUser());
+  };
+
+  const takeAvatar = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      dispatch(updateUserAvatar({ avatar: result.assets[0].uri }));
+    }
+  };
+
+  const removeAvatar = async () => {
+    dispatch(updateUserAvatar({ avatar: null }));
+  };
+
+  const getPosts = async () => {
+    const q = query(
+      collection(db, "posts"),
+      where("userId", "==", `${userId}`)
+    );
+    const querySnapshot = await getDocs(q);
+    const result = [];
+    querySnapshot.forEach((doc) => {
+      const post = { ...doc.data(), idPost: doc.id };
+      result.push(post);
+    });
+    result.sort((a, b) => b.datePost - a.datePost);
+    setPosts(result);
+  };
+
+  useEffect(() => {
+    getPosts();
+  }, []);
 
   return (
-    <ImageBackground source={bgImage} style={styles.backgroundImage}>
-      {/* <> */}
-      <ScrollView>
-        <View style={styles.container}>
-          <Feather
-            onPress={() => {
-              navigation.navigate("Login");
-            }}
-            name="log-out"
-            size={24}
-            color="#BDBDBD"
-            style={styles.logOutIcon}
-          />
-
-          <ImageBackground
-            style={styles.avatar}
-            source={avatar ? { uri: avatar } : require(defaultAvatar)}
-            // source={{ uri: avatar }}
-          >
-            {!avatar ? (
-              <View style={styles.icon}>
-                <TouchableOpacity>
-                  <AntDesign name="closecircleo" size={25} color="#BDBDBD" />
+    <View style={styles.container}>
+      <ImageBackground
+        source={require("../images/photoBg.jpg")}
+        style={styles.image}
+      >
+        <View style={styles.wrapper}>
+          <View style={styles.logoutBtn}>
+            <Feather
+              name="log-out"
+              color="#BDBDBD"
+              size={24}
+              onPress={logout}
+            />
+          </View>
+          <View style={styles.avatarWrapper}>
+            {avatar ? (
+              <>
+                <Image source={{ uri: avatar }} style={styles.avatar} />
+                <TouchableOpacity
+                  style={styles.btnAdd}
+                  activeOpacity={0.7}
+                  onPress={removeAvatar}
+                >
+                  <AntDesign name="closecircleo" size={24} color="#FF6C00" />
                 </TouchableOpacity>
-              </View>
+              </>
             ) : (
-              <View style={styles.icon}>
-                <TouchableOpacity>
-                  <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
+              <>
+                <Image
+                  source={require("../images/userFoto.jpg")}
+                  style={{ width: 120, height: 120, borderRadius: 16 }}
+                />
+                <TouchableOpacity
+                  style={styles.btnAdd}
+                  activeOpacity={0.7}
+                  onPress={takeAvatar}
+                >
+                  <AntDesign name="pluscircleo" size={24} color="#FF6C00" />
                 </TouchableOpacity>
+              </>
+            )}
+          </View>
+          <Text style={styles.headerTitle}>{userName}</Text>
+          <FlatList
+            data={posts}
+            keyExtractor={(item) => item.idPost}
+            renderItem={({ item }) => (
+              <View style={styles.listWrapper}>
+                <Image
+                  source={{ uri: item.photoToServer }}
+                  style={styles.postPhoto}
+                />
+                <Text style={styles.postTitle}>
+                  {item.photoTitle.photoTitle}
+                </Text>
+                <View style={styles.linksWrapper}>
+                  <TouchableOpacity
+                    style={styles.link}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      navigation.navigate("Comments", {
+                        idPost: item.idPost,
+                        photoToServer: item.photoToServer,
+                        photoTitle: item.photoTitle,
+                      });
+                    }}
+                  >
+                    <Feather name="message-circle" size={24} color="#BDBDBD" />
+                    <Text style={{ ...styles.count, marginLeft: 6 }}>
+                      {item.comments?.length || 0}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{ ...styles.link, marginLeft: -180 }}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      console.log("Like");
+                    }}
+                  >
+                    <EvilIcons name="like" size={35} color="#BDBDBD" />
+                    <Text style={styles.count}>{123}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.link}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      navigation.navigate("Map", {
+                        location: item.locationCoords,
+                      });
+                    }}
+                  >
+                    <Feather name="map-pin" size={24} color="#BDBDBD" />
+                    <Text style={styles.locationText}>
+                      {item.photoLocation.photoLocation}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
-
-            {/* <View style={styles.icon}>
-              <TouchableOpacity>
-                 <AntDesign name="closecircleo" size={25} color="#BDBDBD" />
-               </TouchableOpacity>
-             </View> */}
-            {/* <View style={styles.icon}>
-            <TouchableOpacity>
-              <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
-               </TouchableOpacity>
-            </View> */}
-          </ImageBackground>
-
-          <Text style={styles.title}>Natali Romanova</Text>
-
-          {/* <FlatList
-            data={allPostsUser}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-          /> */}
-          <ProfilePost />
-          <ProfilePost />
-          <ProfilePost />
-          <ProfilePost />
+          />
         </View>
-      </ScrollView>
-      {/* </> */}
-    </ImageBackground>
+      </ImageBackground>
+    </View>
   );
-}
+};
+
+export default ProfileScreen;
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    position: "relative",
-    flex: 1,
-    marginBottom: -83,
-    height: "100%",
-    backgroundColor: "#FFFFFF",
-    zIndex: 10,
-  },
-
   container: {
-    position: "relative",
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    marginTop: 147,
-    paddingHorizontal: 16,
-    paddingVertical: 92,
-    backgroundColor: "#FFFFFF",
+    flex: 1,
   },
-
-  logOutIcon: {
+  image: {
+    flex: 1,
+    resizeMode: "cover",
+    paddingTop: 147,
+  },
+  logoutBtn: {
     position: "absolute",
-    top: 22,
+    top: 17,
     right: 16,
   },
+  wrapper: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    marginTop: 60,
+    paddingTop: 92,
 
-  avatar: {
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 32,
+    flex: 1,
+  },
+  avatarWrapper: {
+    height: 120,
+    width: 120,
+    borderRadius: 16,
     position: "absolute",
     top: -60,
-    left: "50%",
-    transform: [{ translateX: -50 }],
-
-    width: 120,
-    height: 120,
     backgroundColor: "#F6F6F6",
-    borderRadius: 16,
   },
-
-  icon: {
-    position: "absolute",
-    right: -12,
-    bottom: 14,
-
-    width: 25,
+  avatar: { height: "100%", width: "100%", borderRadius: 16 },
+  btnAdd: {
     height: 25,
+    width: 25,
+    backgroundColor: "#ffffff",
     borderRadius: 50,
-    backgroundColor: "#FFFFFF",
-  },
+    borderWidth: 1,
+    borderColor: "#E8E8E8",
 
-  title: {
-    fontWeight: 500,
+    position: "absolute",
+    bottom: 19,
+    left: 105,
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontFamily: "Roboto-Medium",
     fontSize: 30,
     lineHeight: 35,
-    textAlign: "center",
-    letterSpacing: 0.01,
     color: "#212121",
-    marginBottom: 32,
+    marginBottom: 33,
+    textAlign: "center",
+  },
+  postPhoto: {
+    height: 240,
+    marginBottom: 8,
+    borderRadius: 8,
+    resizeMode: "cover",
+  },
+  postTitle: {
+    fontFamily: "Roboto-Medium",
+    fontSize: 16,
+    lineHeight: 19,
+    color: "#212121",
+    marginBottom: 8,
+  },
+  linksWrapper: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 35,
+  },
+  link: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  count: {
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    lineHeight: 19,
+    color: "#212121",
+  },
+  listWrapper: {
+    width: 363,
   },
 });
-////////////////
