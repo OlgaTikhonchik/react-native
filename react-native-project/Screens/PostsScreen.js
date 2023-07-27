@@ -81,6 +81,6 @@ const PostsScreen = ({ navigation }) => {
   );
 };
 
-// export default PostsScreen;
+export default PostsScreen;
 
 const styles = StyleSheet.create({});
