@@ -42,7 +42,7 @@ const authRegisterUser =
       );
     } catch (error) {
       Alert.alert("Oops, something went wrong");
-      console.log(error);
+      // console.log(error);
       console.log(error.massege);
     }
   };
@@ -63,7 +63,7 @@ const authLoginUser =
       dispatch(updateUserProfile(userUpdateProfile));
     } catch (error) {
       Alert.alert(`"Email or password invalid"`);
-      console.log(error);
+      // console.log(error);
       console.log(error.massege);
     }
   };

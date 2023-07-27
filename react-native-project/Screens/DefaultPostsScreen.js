@@ -56,6 +56,7 @@ const DefaultPostsScreen = ({ navigation }) => {
                   navigation.navigate("Comments", {
                     idPost: item.idPost,
                     photoToServer: item.photoToServer,
+                    // comments: item.comment,
                   })
                 }
               >
