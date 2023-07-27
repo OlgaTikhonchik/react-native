@@ -67,18 +67,20 @@ const CommentsScreen = ({ route }) => {
       dateComment: Date.now(),
       avatar: avatar ? avatar : null,
     };
+    setComment("");
 
     await updateDoc(doc(db, "posts", `${idPost}`), {
       comments: arrayUnion(result),
     });
     keyboardHide();
+
     setComment("");
   };
 
   const getAllComments = async () => {
     onSnapshot(doc(db, "posts", `${idPost}`), (doc) => {
       const postComments = doc.data().comments;
-      console.log(postComments);
+
       postComments && setComments(postComments);
     });
   };
@@ -130,6 +132,7 @@ const CommentsScreen = ({ route }) => {
             }}
             value={comment}
           />
+
           <TouchableOpacity
             onPress={createComments}
             activeOpacity={0.7}
