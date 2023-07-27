@@ -24,12 +24,14 @@ import { useSelector } from "react-redux";
 const CreatePostsScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState("");
   const [photoTitle, setPhotoTitle] = useState("");
+  console.log(photoTitle);
   const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
   const [flesh, setFlesh] = useState(Camera.Constants.FlashMode.off);
   const [hasPermission, setHasPermission] = useState(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const cameraRef = useRef(null);
   const [photoLocation, setPhotoLocation] = useState("");
+  console.log(photoLocation);
   const [locationCoords, setLocationCoords] = useState(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
@@ -94,7 +96,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const getLocation = async () => {
     const placePhoto = await Location.reverseGeocodeAsync(locationCoords);
     const place = `${placePhoto[0].region}, ${placePhoto[0].country}`;
-    setPhotoLocation((prev) => ({ ...prev, place }));
+    // setPhotoLocation((prev) => ({ ...prev, place }));
   };
 
   const keyboardHide = () => {
@@ -174,22 +176,7 @@ const CreatePostsScreen = ({ navigation }) => {
                 <Image source={{ uri: photo }} style={{ height: 240 }} />
               </View>
             )}
-            <TouchableOpacity
-              onPress={takePicture}
-              style={{
-                height: 60,
-                width: 60,
-                backgroundColor: "rgba(255, 255, 255, 0.3)",
-
-                borderRadius: 50,
-                top: "50%",
-                left: (Dimensions.get("window").width - 32 - 30) / 2,
-                zIndex: 10,
-                position: "absolute",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <TouchableOpacity onPress={takePicture} style={styles.takePicture}>
               <MaterialIcons name="photo-camera" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
@@ -220,6 +207,7 @@ const CreatePostsScreen = ({ navigation }) => {
               onChangeText={(value) =>
                 setPhotoTitle((prevState) => ({
                   ...prevState,
+
                   photoTitle: value,
                 }))
               }
@@ -240,6 +228,7 @@ const CreatePostsScreen = ({ navigation }) => {
               onChangeText={(value) =>
                 setPhotoLocation((prevState) => ({
                   ...prevState,
+
                   photoLocation: value,
                 }))
               }
@@ -269,7 +258,7 @@ const CreatePostsScreen = ({ navigation }) => {
               Опублікувати
             </Text>
           </TouchableOpacity>
-          <View style={{ alignItems: "center", paddingTop: 120 }}>
+          <View style={{ alignItems: "center", paddingTop: 20 }}>
             <TouchableOpacity
               style={{
                 width: 70,
@@ -354,5 +343,18 @@ const styles = StyleSheet.create({
   keyboard: {
     flex: 1,
     justifyContent: "flex-end",
+  },
+  takePicture: {
+    height: 60,
+    width: 60,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+
+    borderRadius: 50,
+    top: "50%",
+    left: (Dimensions.get("window").width - 32 - 30) / 2,
+    zIndex: 10,
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
