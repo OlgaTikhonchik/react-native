@@ -20,6 +20,7 @@ import { db } from "../config";
 const ProfileScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const { userId, userName, avatar } = useSelector((state) => state.auth.user);
+  const [like, setLike] = useState(0);
   const dispatch = useDispatch();
 
   const logout = () => {
@@ -86,7 +87,7 @@ const ProfileScreen = ({ navigation }) => {
                   activeOpacity={0.7}
                   onPress={removeAvatar}
                 >
-                  <AntDesign name="closecircleo" size={24} color="#FF6C00" />
+                  <AntDesign name="closecircleo" size={24} color="#E8E8E8" />
                 </TouchableOpacity>
               </>
             ) : (
@@ -127,10 +128,19 @@ const ProfileScreen = ({ navigation }) => {
                         idPost: item.idPost,
                         photoToServer: item.photoToServer,
                         photoTitle: item.photoTitle,
+                        comments: item.comments,
                       });
                     }}
                   >
-                    <Feather name="message-circle" size={24} color="#BDBDBD" />
+                    <Feather
+                      name="message-circle"
+                      size={24}
+                      color="#BDBDBD"
+                      style={{
+                        // ...styles.icon,
+                        color: 1 > 0 ? "#FF6C00" : "#BDBDBD",
+                      }}
+                    />
                     <Text style={{ ...styles.count, marginLeft: 6 }}>
                       {item.comments?.length || 0}
                     </Text>
@@ -142,8 +152,18 @@ const ProfileScreen = ({ navigation }) => {
                       console.log("Like");
                     }}
                   >
-                    <EvilIcons name="like" size={35} color="#BDBDBD" />
-                    <Text style={styles.count}>{123}</Text>
+                    {/* <EvilIcons name="like" size={35} color="#BDBDBD" /> */}
+                    <EvilIcons
+                      name="like"
+                      size={35}
+                      color="#BDBDBD"
+                      style={{
+                        ...styles.icon,
+                        color: like > 0 ? "#FF6C00" : "#BDBDBD",
+                      }}
+                      onPress={() => setLike((prev) => prev + 1)}
+                    />
+                    <Text style={styles.count}>{like}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.link}
