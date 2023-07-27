@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   Image,
+  Alert,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -31,8 +32,29 @@ const RegistrationScreen = ({ navigation }) => {
   const [dimensions, setDimensions] = useState(
     Dimensions.get("window").width - 16 * 2
   );
+  const [isFocused, setIsFocused] = useState({
+    email: false,
+    password: false,
+  });
 
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
+
+  const handleInputFocus = (textinput) => {
+    setIsFocused({
+      [textinput]: true,
+    });
+  };
+
+  const handleInputBlur = (textinput) => {
+    setIsFocused({
+      [textinput]: false,
+    });
+  };
+
+  const onShow = () => {
+    setShowPassword(!showPassword);
+  };
 
   useEffect(() => {
     const onChange = () => {
@@ -72,6 +94,12 @@ const RegistrationScreen = ({ navigation }) => {
     console.log("state", state);
     dispatch(authRegisterUser(state));
     setState(initialState);
+
+    if (initialState) {
+      //Alert.alert("All fields must be filled");
+      console.log("All fields must be filled");
+      return;
+    }
   };
 
   return (
@@ -82,7 +110,7 @@ const RegistrationScreen = ({ navigation }) => {
           style={styles.image}
         >
           <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            behavior={Platform.OS === "ios" ? "padding" : ""}
           >
             <View
               style={{
@@ -128,40 +156,78 @@ const RegistrationScreen = ({ navigation }) => {
                       <AntDesign
                         name="closecircleo"
                         size={24}
-                        color="#FF6C00"
+                        color="#E8E8E8"
                       />
                     </TouchableOpacity>
                   </>
                 )}
               </View>
               <TextInput
-                style={styles.input}
+                // style={styles.input}
                 placeholder="Логін"
-                onFocus={() => setIsShowKeyboard(true)}
+                // onFocus={() => setIsShowKeyboard(true)}
                 onChangeText={(value) =>
                   setState((prevState) => ({ ...prevState, userName: value }))
                 }
                 value={state.userName}
+                onFocus={() => {
+                  handleInputFocus("login");
+                }}
+                onBlur={() => {
+                  handleInputBlur("login");
+                }}
+                style={
+                  isFocused.login
+                    ? [styles.input, { borderColor: "#FF6C00" }]
+                    : styles.input
+                }
               />
               <TextInput
-                style={styles.input}
+                // style={styles.input}
                 placeholder="Адреса електронної пошти"
-                onFocus={() => setIsShowKeyboard(true)}
+                // onFocus={() => setIsShowKeyboard(true)}
                 onChangeText={(value) =>
                   setState((prevState) => ({ ...prevState, email: value }))
                 }
                 value={state.email}
+                onFocus={() => {
+                  handleInputFocus("email");
+                }}
+                onBlur={() => {
+                  handleInputBlur("email");
+                }}
+                style={
+                  isFocused.email
+                    ? [styles.input, { borderColor: "#FF6C00" }]
+                    : styles.input
+                }
               />
               <TextInput
-                style={styles.input}
+                // style={styles.input}
                 placeholder="Пароль"
-                secureTextEntry={true}
-                onFocus={() => setIsShowKeyboard(true)}
+                secureTextEntry={!showPassword}
+                // onFocus={() => setIsShowKeyboard(true)}
                 onChangeText={(value) =>
                   setState((prevState) => ({ ...prevState, password: value }))
                 }
                 value={state.password}
+                onFocus={() => {
+                  handleInputFocus("password");
+                }}
+                onBlur={() => {
+                  handleInputBlur("password");
+                }}
+                style={
+                  isFocused.password
+                    ? [styles.input, { borderColor: "#FF6C00" }]
+                    : styles.input
+                }
               />
+              <TouchableOpacity style={styles.showTxt} onPress={onShow}>
+                <Text style={styles.showPasswordText}>
+                  {showPassword ? "Приховати" : "Показати"}
+                </Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.btn}
@@ -196,6 +262,7 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
+    width: "100%",
     justifyContent: "flex-end",
   },
   wrapper: {
@@ -233,12 +300,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  disabledBtn: {
+    width: "92%",
+    height: 51,
+    backgroundColor: "#F6F6F6",
+    padding: 16,
+    borderRadius: 100,
+    margin: 16,
+  },
   textBtn: {
     color: "#fff",
     fontFamily: "Roboto-Regular",
     fontSize: 16,
     lineHeight: 19,
   },
+
   textLogin: {
     color: "#1B4371",
     fontFamily: "Roboto-Regular",
@@ -249,7 +325,7 @@ const styles = StyleSheet.create({
   },
   avatar: {
     position: "absolute",
-    right: "50%",
+    right: "53%",
     top: 0,
     transform: [{ translateX: 60 }, { translateY: -60 }],
     width: 120,
@@ -263,5 +339,40 @@ const styles = StyleSheet.create({
     left: 105,
     width: 25,
     height: 25,
+  },
+  registerBtn: {
+    width: "92%",
+    height: 51,
+    backgroundColor: "#FF6C00",
+    padding: 16,
+    borderRadius: 100,
+    margin: 16,
+  },
+  disabledRegisterBtn: {
+    width: "92%",
+    height: 51,
+    backgroundColor: "#F6F6F6",
+    padding: 16,
+    borderRadius: 100,
+    margin: 16,
+  },
+  registerBtnTextDisabled: {
+    fontSize: 16,
+    color: "#BDBDBD",
+    textAlign: "center",
+  },
+  registerBtnText: {
+    fontSize: 16,
+    color: "#ffffff",
+    textAlign: "center",
+  },
+  showPasswordText: {
+    fontSize: 16,
+    color: "#1B4371",
+    position: "absolute",
+    textAlign: "right",
+
+    right: 32,
+    bottom: 30,
   },
 });
