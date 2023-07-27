@@ -26,8 +26,30 @@ const LoginScreen = ({ navigation }) => {
   const [dimensions, setDimensions] = useState(
     Dimensions.get("window").width - 16 * 2
   );
+  const [isFocused, setIsFocused] = useState({
+    email: false,
+    password: false,
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
+
+  const handleInputFocus = (textinput) => {
+    setIsFocused({
+      [textinput]: true,
+    });
+  };
+
+  const handleInputBlur = (textinput) => {
+    setIsFocused({
+      [textinput]: false,
+    });
+  };
+
+  const onShow = () => {
+    setShowPassword(!showPassword);
+  };
 
   useEffect(() => {
     const onChange = () => {
@@ -43,6 +65,12 @@ const LoginScreen = ({ navigation }) => {
     Keyboard.dismiss();
     dispatch(authLoginUser(state));
     setState(initialState);
+
+    if (initialState) {
+      //Alert.alert("All fields must be filled");
+      console.log("All fields must be filled");
+      return;
+    }
   };
   return (
     <TouchableWithoutFeedback onPress={handleSubmit}>
@@ -67,24 +95,51 @@ const LoginScreen = ({ navigation }) => {
                 <Text style={styles.text}>Войти</Text>
               </View>
               <TextInput
-                style={styles.input}
+                // style={styles.input}
                 placeholder="Адреса електронної пошти"
-                onFocus={() => setIsShowKeyboard(true)}
+                // onFocus={() => setIsShowKeyboard(true)}
                 onChangeText={(value) =>
                   setState((prevState) => ({ ...prevState, email: value }))
                 }
                 value={state.email}
+                onFocus={() => {
+                  handleInputFocus("email");
+                }}
+                onBlur={() => {
+                  handleInputBlur("email");
+                }}
+                style={
+                  isFocused.email
+                    ? [styles.input, { borderColor: "#FF6C00" }]
+                    : styles.input
+                }
               />
               <TextInput
-                style={styles.input}
+                //style={styles.input}
                 placeholder="Пароль"
-                secureTextEntry={true}
-                onFocus={() => setIsShowKeyboard(true)}
+                secureTextEntry={!showPassword}
+                // onFocus={() => setIsShowKeyboard(true)}
                 onChangeText={(value) =>
                   setState((prevState) => ({ ...prevState, password: value }))
                 }
                 value={state.password}
+                onFocus={() => {
+                  handleInputFocus("password");
+                }}
+                onBlur={() => {
+                  handleInputBlur("password");
+                }}
+                style={
+                  isFocused.password
+                    ? [styles.input, { borderColor: "#FF6C00" }]
+                    : styles.input
+                }
               />
+              <TouchableOpacity style={styles.showTxt} onPress={onShow}>
+                <Text style={styles.showPasswordText}>
+                  {showPassword ? "Приховати" : "Показати"}
+                </Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.btn}
@@ -172,5 +227,14 @@ const styles = StyleSheet.create({
   keyboard: {
     flex: 1,
     justifyContent: "flex-end",
+  },
+  showPasswordText: {
+    fontSize: 16,
+    color: "#1B4371",
+    position: "absolute",
+    textAlign: "right",
+
+    right: 32,
+    bottom: 30,
   },
 });
