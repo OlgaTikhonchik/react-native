@@ -24,14 +24,14 @@ import { useSelector } from "react-redux";
 const CreatePostsScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState("");
   const [photoTitle, setPhotoTitle] = useState("");
-  console.log(photoTitle);
+  // console.log(photoTitle);
   const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
   const [flesh, setFlesh] = useState(Camera.Constants.FlashMode.off);
   const [hasPermission, setHasPermission] = useState(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const cameraRef = useRef(null);
   const [photoLocation, setPhotoLocation] = useState("");
-  console.log(photoLocation);
+  // console.log(photoLocation);
   const [locationCoords, setLocationCoords] = useState(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
@@ -96,7 +96,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const getLocation = async () => {
     const placePhoto = await Location.reverseGeocodeAsync(locationCoords);
     const place = `${placePhoto[0].region}, ${placePhoto[0].country}`;
-    // setPhotoLocation((prev) => ({ ...prev, place }));
+    setPhotoLocation((prev) => ({ ...prev, place }));
   };
 
   const keyboardHide = () => {

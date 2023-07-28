@@ -128,7 +128,7 @@ const ProfileScreen = ({ navigation }) => {
                         idPost: item.idPost,
                         photoToServer: item.photoToServer,
                         photoTitle: item.photoTitle,
-                        comments: item.comments,
+                        // comments: item.comments,
                       });
                     }}
                   >

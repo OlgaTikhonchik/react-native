@@ -24,8 +24,9 @@ const CommentsScreen = ({ route }) => {
   const { userName, userId, avatar } = useSelector((state) => state.auth.user);
   const { idPost, photoToServer } = route.params;
   const [comment, setComment] = useState("");
+  // console.log(comment);
   const [comments, setComments] = useState([]);
-
+  //console.log(comments);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
   const [dimensions, setDimension] = useState(Dimensions.get("window").width);
@@ -64,6 +65,7 @@ const CommentsScreen = ({ route }) => {
       userId,
       userName,
       comment,
+
       dateComment: Date.now(),
       avatar: avatar ? avatar : null,
     };
@@ -80,7 +82,7 @@ const CommentsScreen = ({ route }) => {
   const getAllComments = async () => {
     onSnapshot(doc(db, "posts", `${idPost}`), (doc) => {
       const postComments = doc.data().comments;
-
+      console.log(postComments);
       postComments && setComments(postComments);
     });
   };
